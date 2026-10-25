@@ -7,6 +7,7 @@ RUN dotnet publish AdmissionWeb.csproj -c Release -o /app/publish /p:UseAppHost=
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish ./
+COPY --from=build /src/wwwroot ./wwwroot
 RUN mkdir -p /app/App_Data && chown -R $APP_UID:$APP_UID /app/App_Data
 ENV ASPNETCORE_URLS=http://+:10000 \
     ASPNETCORE_FORWARDEDHEADERS_ENABLED=true \
