@@ -121,6 +121,18 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+// [diag] Prints where the website files are on the server, so a missing wwwroot is easy to spot in the Render logs.
+try
+{
+    var diagRoot = app.Environment.WebRootPath;
+    Console.WriteLine("[diag] BaseDirectory=" + AppContext.BaseDirectory + " | CurrentDirectory=" + Directory.GetCurrentDirectory());
+    Console.WriteLine("[diag] WebRootPath=" + (diagRoot ?? "(null)"));
+    Console.WriteLine("[diag] wwwroot exists=" + (diagRoot != null && Directory.Exists(diagRoot)) + " | index.html exists=" + (diagRoot != null && File.Exists(Path.Combine(diagRoot, "index.html"))));
+    foreach (var diagEntry in Directory.GetFileSystemEntries(AppContext.BaseDirectory).Take(60)) Console.WriteLine("[diag] app folder: " + Path.GetFileName(diagEntry));
+    if (diagRoot != null && Directory.Exists(diagRoot))
+        foreach (var diagEntry2 in Directory.GetFileSystemEntries(diagRoot).Take(40)) Console.WriteLine("[diag] wwwroot: " + Path.GetFileName(diagEntry2));
+}
+catch (Exception diagEx) { Console.WriteLine("[diag] error: " + diagEx.Message); }
 var store = app.Services.GetRequiredService<AdmissionStore>();
 store.Initialize();
 var adminUsername = Environment.GetEnvironmentVariable("ADMIN_USERNAME");
