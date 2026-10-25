@@ -1,0 +1,332 @@
+/* =========================================================================
+   glow.css  -  glass and glow layer (loaded after site.css / admin.css)
+   Look: deep navy to electric blue, frosted glass cards, glowing logo ring,
+   glowing gradient pill buttons, ambient blurred light blobs.
+   Only transform / opacity / box-shadow / filter / background-position are
+   animated. Everything respects prefers-reduced-motion at the bottom.
+   ========================================================================= */
+
+@property --glow-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+:root {
+  /* Flip the existing tokens to a dark-glass palette. Dialogs reset them below. */
+  --navy: #ffffff;
+  --ink: #eaf0ff;
+  --muted: #b9c7ea;
+  --line: rgba(255, 255, 255, .16);
+  --paper: rgba(255, 255, 255, .08);
+  --soft: transparent;
+  --blue: #6ea0ff;
+  --red: #ff5d7d;
+  --yellow: #ffd166;
+  --green: #2be08b;
+
+  --glass: rgba(255, 255, 255, .09);
+  --glass-strong: rgba(255, 255, 255, .15);
+  --glass-line: rgba(255, 255, 255, .22);
+  --glow-pink: 0 0 0 1px rgba(255, 255, 255, .18) inset, 0 8px 26px rgba(255, 77, 109, .5), 0 0 38px rgba(255, 77, 109, .38);
+  --glow-blue: 0 0 0 1px rgba(255, 255, 255, .18) inset, 0 8px 26px rgba(0, 140, 255, .5), 0 0 38px rgba(0, 140, 255, .38);
+  --glow-green: 0 0 0 1px rgba(255, 255, 255, .18) inset, 0 8px 26px rgba(25, 195, 125, .5), 0 0 38px rgba(25, 195, 125, .38);
+  --card-shadow: 0 24px 70px rgba(2, 10, 40, .45), 0 0 50px rgba(79, 140, 255, .16), inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+
+/* ---------- page background: gradient + drifting light blobs ---------- */
+html { background: #0a1740; color-scheme: dark; }
+body { background: transparent; color: var(--ink); overflow-x: hidden; }
+/* The old logo watermark layer is reused as the fixed gradient (no background-attachment:fixed, so it also works on phones). */
+body::before, .admin-body::before {
+  content: "" !important; position: fixed !important; inset: 0 !important; z-index: -2 !important; pointer-events: none;
+  background: linear-gradient(135deg, #081437 0%, #142f80 42%, #2757d4 100%) !important;
+  background-size: auto !important; opacity: 1 !important; filter: none !important; transform: none !important;
+}
+html::before, html::after {
+  content: ""; position: fixed; z-index: -1; pointer-events: none; border-radius: 50%; filter: blur(90px);
+}
+html::before {
+  width: 52vw; height: 52vw; left: -14vw; top: -16vw;
+  background: rgba(66, 133, 244, .55); animation: blob-a 20s ease-in-out infinite alternate;
+}
+html::after {
+  width: 48vw; height: 48vw; right: -14vw; bottom: -18vw;
+  background: rgba(168, 85, 247, .5); animation: blob-b 24s ease-in-out infinite alternate;
+}
+@keyframes blob-a { to { transform: translate3d(9vw, 7vw, 0) scale(1.12); } }
+@keyframes blob-b { to { transform: translate3d(-8vw, -6vw, 0) scale(1.1); } }
+/* Old light-theme hero decorations are replaced by the blobs above; let glows spill out of the hero. */
+.hero { overflow: visible; }
+.hero::before, .hero::after { display: none; }
+
+/* ---------- header and logo ---------- */
+.site-header {
+  background: rgba(8, 20, 55, .58);
+  backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, .14);
+  box-shadow: 0 10px 40px rgba(2, 10, 40, .35);
+}
+.site-header.is-scrolled { box-shadow: 0 10px 44px rgba(2, 10, 40, .55), 0 1px 0 rgba(110, 160, 255, .35); }
+.brand { color: #fff; position: relative; isolation: isolate; }
+.brand-name { color: #fff; }
+.brand-name b { color: var(--red); text-shadow: 0 0 18px rgba(255, 93, 125, .75); }
+.brand-location { color: #b9c7ea; }
+
+/* Logo: white plate, ring, pulsing glow, and a slowly orbiting coloured halo. */
+.brand-logo, .admin-brand-logo {
+  position: relative; background: #fff; padding: 3px; object-fit: contain;
+  border: 2px solid rgba(255, 255, 255, .9); border-radius: 14px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, .12), 0 0 18px rgba(79, 140, 255, .8), 0 0 44px rgba(124, 92, 255, .55);
+  animation: logo-pulse 3.4s ease-in-out infinite;
+}
+.brand::before {
+  content: ""; position: absolute; z-index: -1; left: -10px; top: 50%; width: 70px; height: 70px;
+  margin-top: -35px; border-radius: 50%; filter: blur(15px); opacity: .75;
+  background: conic-gradient(#ff4d6d, #ffd166, #2be08b, #00b4ff, #7c5cff, #ff4d6d);
+  animation: halo-spin 7s linear infinite;
+}
+.admin-header .brand::before { width: 60px; height: 60px; margin-top: -30px; }
+@keyframes logo-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255,255,255,.12), 0 0 14px rgba(79,140,255,.7), 0 0 34px rgba(124,92,255,.4); }
+  50% { box-shadow: 0 0 0 4px rgba(255,255,255,.2), 0 0 26px rgba(79,140,255,.95), 0 0 62px rgba(255,93,125,.6); }
+}
+@keyframes halo-spin { to { rotate: 360deg; } }
+
+.main-nav { color: #d6e0fb; }
+.main-nav a:hover, .main-nav a.active { color: #fff; text-shadow: 0 0 14px rgba(120, 170, 255, .95); }
+.main-nav a:not(.admin-link)::after { background: linear-gradient(90deg, #6ea0ff, #ff5d7d); box-shadow: 0 0 10px rgba(110, 160, 255, .9); }
+.main-nav .admin-link {
+  color: #fff; border: 1px solid rgba(255, 255, 255, .3); background: rgba(255, 255, 255, .09);
+  box-shadow: 0 0 20px rgba(79, 140, 255, .35); border-radius: 999px;
+}
+.menu-toggle { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .28); color: #fff; box-shadow: 0 0 16px rgba(79, 140, 255, .35); }
+.admin-header-right { color: #fff; }
+
+/* ---------- typography on dark ---------- */
+.eyebrow { color: #9bbcff; text-shadow: 0 0 14px rgba(110, 160, 255, .5); }
+.eyebrow i { background: var(--red); box-shadow: 0 0 12px 2px rgba(255, 93, 125, .8); animation: dot-pulse 2.2s ease-in-out infinite; }
+@keyframes dot-pulse { 50% { box-shadow: 0 0 20px 6px rgba(255, 93, 125, .95); } }
+.hero h1 { color: #fff; text-shadow: 0 0 34px rgba(120, 160, 255, .4); }
+.hero h1 span {
+  background: linear-gradient(90deg, #ff5d7d, #ffb86b, #ff5d7d); background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(255, 93, 125, .55)); animation: text-shine 6s linear infinite;
+}
+@keyframes text-shine { to { background-position: 200% center; } }
+.hero-copy > p { color: #c6d3f0; }
+.hero-note { color: #a9b8e0; }
+.note-dot { background: var(--yellow); box-shadow: 0 0 12px 2px rgba(255, 209, 102, .8); }
+.section-heading h2, .track-layout h2, .admission-intro h2 { color: #fff; text-shadow: 0 0 28px rgba(120, 160, 255, .3); }
+.section-heading p { color: #b9c7ea; }
+.heading-mark { color: #a9b8e0; }
+.heading-mark i { background: linear-gradient(90deg, #ff5d7d, #ffb86b); box-shadow: 0 0 12px rgba(255, 93, 125, .8); }
+
+/* ---------- buttons: glowing gradient pills ---------- */
+.button { border-radius: 999px; }
+.button-primary {
+  background: linear-gradient(135deg, #ff4d6d, #ff8a5c); color: #fff; box-shadow: var(--glow-pink);
+  animation: btn-glow 3s ease-in-out infinite;
+}
+.button-primary:hover { filter: brightness(1.1); box-shadow: 0 0 0 1px rgba(255,255,255,.25) inset, 0 12px 34px rgba(255,77,109,.65), 0 0 56px rgba(255,77,109,.55); }
+.button-outline {
+  background: linear-gradient(135deg, #00b4ff, #0072ff); color: #fff; border: 0; box-shadow: var(--glow-blue);
+}
+.button-outline:hover { filter: brightness(1.1); box-shadow: 0 0 0 1px rgba(255,255,255,.25) inset, 0 12px 34px rgba(0,140,255,.65), 0 0 56px rgba(0,140,255,.55); }
+.button-dark { background: linear-gradient(135deg, #2b2b2b, #050505); color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.2) inset, 0 8px 26px rgba(0,0,0,.5), 0 0 30px rgba(255,255,255,.16); }
+.button-dark:hover { box-shadow: 0 0 0 1px rgba(255,255,255,.3) inset, 0 12px 34px rgba(0,0,0,.6), 0 0 44px rgba(255,255,255,.28); }
+.pagination .button-outline, .admin-header-right .button-outline { background: rgba(255,255,255,.1); box-shadow: 0 0 18px rgba(79,140,255,.3); border: 1px solid rgba(255,255,255,.3); }
+@keyframes btn-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset, 0 8px 26px rgba(255,77,109,.45), 0 0 30px rgba(255,77,109,.3); }
+  50% { box-shadow: 0 0 0 1px rgba(255,255,255,.25) inset, 0 10px 32px rgba(255,77,109,.7), 0 0 52px rgba(255,138,92,.55); }
+}
+
+/* ---------- glass surfaces ---------- */
+.hero-card, .course-card, .payment-card, .payment-qr-card, .payment-callout, .track-form, .form-card,
+.form-qr-panel, .admin-login, .summary-card, .admin-panel, .course-edit {
+  background: var(--glass); border: 1px solid var(--glass-line); color: var(--ink);
+  backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: var(--card-shadow);
+}
+.hero-card { border-radius: 28px; max-width: 500px; position: relative; }
+.form-card, .payment-qr-card, .track-form, .admin-login { border-radius: 24px; }
+.course-card, .payment-card { border-radius: 20px; }
+
+/* Rotating glowing border on the big cards. */
+.hero-card::before, .form-card::before, .payment-qr-card::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none; z-index: 2;
+  background: conic-gradient(from var(--glow-angle), transparent 0 52%, #4f8cff 66%, #ff4d6d 80%, #ffd166 92%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: glow-rotate 6s linear infinite;
+}
+@keyframes glow-rotate { to { --glow-angle: 360deg; } }
+
+.hero-card .card-stripe { background: linear-gradient(135deg, #ff4d6d, #7c5cff); box-shadow: 0 0 40px rgba(124, 92, 255, .45); }
+.card-stripe:after { background: var(--yellow); box-shadow: 0 0 16px var(--yellow); }
+.card-stripe small { color: #fff; }
+.hero-card h2 { color: #fff; }
+.mini-course { border-top-color: rgba(255, 255, 255, .14); color: #eaf0ff; }
+.mini-course b { background: rgba(255, 93, 125, .18); color: #ffb3c1; box-shadow: 0 0 14px rgba(255, 93, 125, .35); }
+.mini-icon { background: rgba(255, 93, 125, .2); color: #ffb3c1; box-shadow: 0 0 14px rgba(255, 93, 125, .45); }
+.mini-yellow { background: rgba(255, 209, 102, .2); color: #ffe29a; box-shadow: 0 0 14px rgba(255, 209, 102, .45); }
+.mini-blue { background: rgba(110, 160, 255, .22); color: #b9d0ff; box-shadow: 0 0 14px rgba(110, 160, 255, .5); }
+.card-foot { border-top-color: rgba(255, 255, 255, .14); color: #a9b8e0; }
+.card-kicker { color: #ff8fa6; }
+
+/* ---------- sections ---------- */
+.courses-section, .payment-section, .track-section { background: transparent; }
+.admission-section {
+  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.07));
+  border-top: 1px solid rgba(255,255,255,.1); border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.admission-intro > p { color: #d3dcf3; }
+.step-list small, .privacy-note { color: #b5c5dd; }
+.privacy-note { border-left-color: var(--yellow); }
+.step-list > div > span, .form-section h4 > span {
+  background: linear-gradient(135deg, #ff4d6d, #7c5cff); color: #fff; box-shadow: 0 0 18px rgba(124, 92, 255, .6);
+}
+.form-section h4 > span { background: none; box-shadow: none; color: var(--red); text-shadow: 0 0 12px rgba(255, 93, 125, .8); }
+
+/* course cards */
+.course-card:hover, .payment-card:hover { box-shadow: 0 24px 70px rgba(2,10,40,.5), 0 0 46px rgba(110,160,255,.4), inset 0 1px 0 rgba(255,255,255,.25); }
+.course-card::before { box-shadow: 0 0 18px currentColor; }
+.course-card:nth-child(1)::before { background: #4f8cff; color: #4f8cff; }
+.course-card:nth-child(2)::before { background: #ff4d6d; color: #ff4d6d; }
+.course-card:nth-child(3)::before { background: #ffd166; color: #ffd166; }
+.course-card:nth-child(4)::before { background: #a78bfa; color: #a78bfa; }
+.course-card h3 { color: #fff; }
+.course-card p, .topic-list { color: #b9c7ea; }
+.course-index, .fee-old, .course-card .fee-label { color: #98a9d3; }
+.course-fee { border-top-color: rgba(255, 255, 255, .14); }
+.fee-new { color: #fff; text-shadow: 0 0 16px rgba(110, 160, 255, .55); }
+.discount-badge { background: rgba(255, 93, 125, .18); color: #ffb3c1; box-shadow: 0 0 14px rgba(255, 93, 125, .4); }
+.course-card .offer-flag { background: rgba(255, 209, 102, .14); color: #ffe29a; }
+
+/* payment cards, QR */
+.payment-card h3, .payment-qr-card h3 { color: #fff; }
+.payment-card p, .payment-qr-card p, .qr-instructions, .form-qr-panel p { color: #c3d0ee; }
+.payment-symbol { background: linear-gradient(135deg, #4f8cff, #7c5cff); color: #fff; box-shadow: 0 0 20px rgba(110, 140, 255, .65); }
+.symbol-yellow { background: linear-gradient(135deg, #ffd166, #ff9f43); color: #3b2a00; box-shadow: 0 0 20px rgba(255, 209, 102, .6); }
+.symbol-red { background: linear-gradient(135deg, #ff4d6d, #ff8a5c); color: #fff; box-shadow: 0 0 20px rgba(255, 93, 125, .6); }
+.qr-image-link, .qr-thumbnail {
+  background: #fff; border-radius: 20px; border: 0;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, .15), 0 0 34px rgba(255, 255, 255, .35), 0 0 70px rgba(79, 140, 255, .5);
+  animation: qr-glow 4s ease-in-out infinite;
+}
+@keyframes qr-glow {
+  50% { box-shadow: 0 0 0 5px rgba(255,255,255,.22), 0 0 44px rgba(255,255,255,.5), 0 0 90px rgba(124,92,255,.65); }
+}
+.payment-callout b { color: #fff; }
+.payment-callout span { color: #b9c7ea; }
+.text-link { color: #9bbcff; text-shadow: 0 0 12px rgba(110, 160, 255, .7); }
+
+/* contact + footer */
+.contact-section {
+  background: linear-gradient(120deg, #d62f55, #7c3aed); box-shadow: 0 -10px 60px rgba(214, 47, 85, .35), 0 10px 60px rgba(124, 58, 237, .35);
+}
+.contact-phone b { text-shadow: 0 0 22px rgba(255, 255, 255, .7); }
+.site-footer { background: rgba(4, 10, 32, .6); border-top: 1px solid rgba(255, 255, 255, .1); }
+
+/* ---------- forms ---------- */
+.form-title { border-bottom-color: rgba(255, 255, 255, .14); }
+.form-title h3, .form-section h4 { color: #fff; }
+.form-section { border-bottom-color: rgba(255, 255, 255, .12); }
+.required-note, .optional, .form-help { color: #a9b8e0; }
+.field { color: #cdd8f5; }
+.field input, .field select, .field textarea, .filters input, .filters select, .course-edit input, td select {
+  background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .22); color: #fff; color-scheme: dark;
+}
+.field input::placeholder { color: #8fa1cf; }
+.field select option, td select option, .filters select option { background: #12266b; color: #fff; }
+.field input:focus, .field select:focus, .field textarea:focus, .filters input:focus, .filters select:focus, .course-edit input:focus {
+  border-color: #8fb4ff; outline: none; background: rgba(255, 255, 255, .13);
+  box-shadow: 0 0 0 3px rgba(79, 140, 255, .28), 0 0 26px rgba(79, 140, 255, .5);
+}
+.fee-quote { background: rgba(255, 255, 255, .08); color: #c3d0ee; border: 1px solid rgba(255, 255, 255, .14); }
+.fee-quote strong { color: #fff; text-shadow: 0 0 16px rgba(110, 160, 255, .7); }
+.fee-quote .struck { color: #98a9d3; }
+.payment-options label { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .2); border-radius: 14px; transition: box-shadow .25s ease, border-color .25s ease; }
+.payment-options label:hover { border-color: rgba(255, 255, 255, .4); }
+.payment-options label:has(input:checked) { border-color: #8fb4ff; background: rgba(79, 140, 255, .22); box-shadow: 0 0 24px rgba(79, 140, 255, .55); }
+.payment-options small { color: #a9b8e0; }
+.payment-warning, .success-warning, .admin-login-note, .admin-notice {
+  background: rgba(255, 209, 102, .12); border: 1px solid rgba(255, 209, 102, .35); color: #ffe4a0;
+}
+.confirm-check { color: #c7d3f2; }
+.secure-note { color: #a9b8e0; }
+.form-message.error { background: rgba(255, 77, 109, .16); color: #ffc2cd; border: 1px solid rgba(255, 77, 109, .4); }
+.form-message.success { background: rgba(43, 224, 139, .14); color: #a6f3cf; border: 1px solid rgba(43, 224, 139, .4); }
+.success-panel .success-mark { background: rgba(43, 224, 139, .2); color: #6dffb8; box-shadow: 0 0 24px rgba(43, 224, 139, .6); }
+.success-panel h3 { color: #fff; }
+.application-number { background: rgba(255, 255, 255, .1); color: #bcd2ff; border: 1px solid rgba(255, 255, 255, .2); text-shadow: 0 0 14px rgba(110, 160, 255, .7); }
+.success-meta { color: #c7d3f2; }
+.track-layout p { color: #c3d0ee; }
+.track-result { border-top-color: rgba(255, 255, 255, .14); color: #d4dffa; }
+.track-result strong { color: #fff; }
+
+/* ---------- dialogs stay light, with a glow rim ---------- */
+.review-dialog, .details-dialog, .qr-dialog {
+  --navy: #173a72; --ink: #18263b; --muted: #697789; --line: #e1e7ef; --paper: #fff; --soft: #f4f7fb;
+  --blue: #2b59bd; --red: #d94043; --yellow: #f2c94c; --green: #167653;
+  color: var(--ink); color-scheme: light;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .5), 0 0 60px rgba(79, 140, 255, .6), 0 30px 90px rgba(2, 10, 40, .6);
+}
+.review-dialog .button-outline, .details-dialog .button-outline {
+  background: #fff; color: #173a72; border: 1px solid #cbd5e2; box-shadow: none; animation: none;
+}
+.qr-dialog img { background: #fff; border-radius: 12px; }
+.qr-dialog-close { background: #fff; color: #173a72; }
+
+/* ---------- admin ---------- */
+.admin-body { background: transparent; }
+.admin-login h1, .admin-title-row h1, .panel-heading h2, .course-edit h3, .summary-card b { color: #fff; }
+.admin-login-mark { color: #9bbcff; text-shadow: 0 0 14px rgba(110, 160, 255, .6); }
+.admin-login > p, .admin-title-row p, .panel-heading p { color: #b9c7ea; }
+.summary-card span { color: #a9b8e0; }
+.summary-card b { text-shadow: 0 0 18px rgba(110, 160, 255, .6); }
+.summary-card { border-radius: 16px; }
+.admin-tabs { border-bottom-color: rgba(255, 255, 255, .16); }
+.admin-tabs button { color: #b9c7ea; }
+.admin-tabs button.active { color: #fff; border-bottom-color: var(--red); text-shadow: 0 0 14px rgba(255, 93, 125, .8); }
+.admin-panel { border-radius: 0 0 20px 20px; }
+.filters label, .course-edit label, .pagination { color: #cdd8f5; }
+.table-wrap { border-color: rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .04); border-radius: 14px; }
+th { background: rgba(255, 255, 255, .1); color: #cdd8f5; }
+td { border-top-color: rgba(255, 255, 255, .1); color: #e6edff; }
+td small, .course-edit .course-meta { color: #9fb0d6; }
+td .table-button { color: #9bbcff; text-shadow: 0 0 10px rgba(110, 160, 255, .7); }
+.status-pill { background: rgba(255, 255, 255, .12); color: #d6e0fb; }
+.status-pill.pending { background: rgba(255, 209, 102, .18); color: #ffe29a; box-shadow: 0 0 12px rgba(255, 209, 102, .3); }
+.status-pill.good { background: rgba(43, 224, 139, .18); color: #8cf3c2; box-shadow: 0 0 12px rgba(43, 224, 139, .3); }
+.status-pill.bad { background: rgba(255, 77, 109, .18); color: #ffb3c1; box-shadow: 0 0 12px rgba(255, 77, 109, .3); }
+
+/* ---------- layout fixes found while testing ---------- */
+/* Label hint ("optional") no longer pushes the input down, so side-by-side fields line up. */
+.field { display: block; }
+.field input, .field select, .field textarea { display: block; width: 100%; margin-top: 6px; }
+.field .optional { display: inline; margin-left: 4px; }
+.payment-options label { margin: 0; }
+/* Grid children may shrink, so nothing can push the page wider than the phone screen. */
+.admission-layout > *, .track-layout > *, .hero > *, .payment-qr-card > *, .form-grid > *, .course-grid > * { min-width: 0; }
+@media (max-width: 850px) {
+  .admission-layout, .track-layout, .hero { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* The old light-theme rules hid the line break in this heading on phones, gluing two words together; and
+   .button { display:flex } was overriding the hidden attribute (e.g. "Sign out" showing while logged out). */
+.admission-intro h2 br { display: initial; }
+[hidden] { display: none !important; }
+
+/* ---------- mobile ---------- */
+@media (max-width: 650px) {
+  html::before, html::after { filter: blur(70px); }
+  .main-nav { background: rgba(8, 20, 55, .96); border-bottom: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 18px 40px rgba(2, 10, 40, .6), 0 0 30px rgba(79, 140, 255, .25); }
+  .main-nav .admin-link { border-radius: 999px; }
+  .brand::before { width: 58px; height: 58px; margin-top: -29px; left: -8px; }
+  .hero-card { max-width: 100%; }
+  .form-card, .payment-qr-card, .track-form, .admin-login { border-radius: 20px; }
+  .button-primary { animation: none; }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html::before, html::after, .brand::before, .brand-logo, .admin-brand-logo, .eyebrow i, .hero h1 span, .button-primary,
+  .hero-card::before, .form-card::before, .payment-qr-card::before, .qr-image-link, .qr-thumbnail { animation: none !important; }
+}
